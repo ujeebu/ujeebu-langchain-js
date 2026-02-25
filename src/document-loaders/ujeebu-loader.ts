@@ -3,7 +3,7 @@
  */
 
 import { Document } from '@langchain/core/documents';
-import { BaseDocumentLoader } from 'langchain/document_loaders/base';
+import { BaseDocumentLoader } from '@langchain/core/document_loaders/base';
 import axios from 'axios';
 import { ArticleData } from '../types';
 

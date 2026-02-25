@@ -41,7 +41,7 @@ pnpm add @ujeebu-org/langchain
 ### Requirements
 
 - Node.js 16.0 or higher
-- LangChain 0.1.0 or higher
+- @langchain/core 0.3.0 or higher
 - An Ujeebu API key ([Get one here](https://ujeebu.com/signup))
 
 ## Quick Start
@@ -62,36 +62,30 @@ process.env.UJEEBU_API_KEY = "your-api-key";
 
 ```typescript
 import { UjeebuExtractTool } from '@ujeebu-org/langchain';
-import { initializeAgentExecutorWithOptions } from 'langchain/agents';
-import { ChatOpenAI } from 'langchain/chat_models/openai';
+import { createReactAgent } from '@langchain/langgraph/prebuilt';
+import { ChatOpenAI } from '@langchain/openai';
+import { HumanMessage } from '@langchain/core/messages';
 
 // Initialize the tool
 const ujeebuTool = new UjeebuExtractTool();
 
 // Create an agent
 const llm = new ChatOpenAI({ temperature: 0 });
-const agent = await initializeAgentExecutorWithOptions(
-  [ujeebuTool],
-  llm,
-  {
-    agentType: 'openai-functions',
-    verbose: true,
-  }
-);
+const agent = createReactAgent({ llm, tools: [ujeebuTool] });
 
 // Use the agent
 const response = await agent.invoke({
-  input: 'Extract the article from https://example.com/article and summarize it'
+  messages: [new HumanMessage('Extract the article from https://example.com/article and summarize it')],
 });
-console.log(response);
+console.log(response.messages[response.messages.length - 1].content);
 ```
 
 ### Using the Document Loader
 
 ```typescript
 import { UjeebuLoader } from '@ujeebu-org/langchain';
-import { FaissStore } from 'langchain/vectorstores/faiss';
-import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
+import { FaissStore } from '@langchain/community/vectorstores/faiss';
+import { OpenAIEmbeddings } from '@langchain/openai';
 
 // Load articles
 const loader = new UjeebuLoader({
@@ -175,10 +169,10 @@ console.log(`Images: ${doc.metadata.images}`);
 
 ```typescript
 import { UjeebuLoader } from '@ujeebu-org/langchain';
-import { RetrievalQAChain } from 'langchain/chains';
-import { FaissStore } from 'langchain/vectorstores/faiss';
-import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
-import { ChatOpenAI } from 'langchain/chat_models/openai';
+import { FaissStore } from '@langchain/community/vectorstores/faiss';
+import { OpenAIEmbeddings, ChatOpenAI } from '@langchain/openai';
+import { ChatPromptTemplate } from '@langchain/core/prompts';
+import { StringOutputParser } from '@langchain/core/output_parsers';
 
 // Load articles
 const loader = new UjeebuLoader({
@@ -192,18 +186,21 @@ const documents = await loader.load();
 // Create vector store
 const embeddings = new OpenAIEmbeddings();
 const vectorStore = await FaissStore.fromDocuments(documents, embeddings);
+const retriever = vectorStore.asRetriever();
 
-// Create QA chain
-const qaChain = RetrievalQAChain.fromLLM(
-  new ChatOpenAI({ temperature: 0 }),
-  vectorStore.asRetriever()
-);
+// Retrieve and answer
+const query = 'What are the main points?';
+const relevantDocs = await retriever.invoke(query);
+const context = relevantDocs.map((doc) => doc.pageContent).join('\n\n');
 
-// Query
-const result = await qaChain.call({
-  query: 'What are the main points?'
-});
-console.log(result.text);
+const prompt = ChatPromptTemplate.fromMessages([
+  ['system', 'Answer based on the following context:\n\n{context}'],
+  ['human', '{question}'],
+]);
+
+const chain = prompt.pipe(new ChatOpenAI({ temperature: 0 })).pipe(new StringOutputParser());
+const answer = await chain.invoke({ context, question: query });
+console.log(answer);
 ```
 
 ## API Reference
@@ -351,7 +348,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Changelog
 
-### 0.1.0 (2024-01-01)
+### 0.2.0
+
+- Upgrade to LangChain 1.x compatibility
+- Import `BaseDocumentLoader` from `@langchain/core` instead of `langchain`
+- Only `@langchain/core` required as peer dependency (not `langchain`)
+- Update examples to use `@langchain/langgraph` for agents
+
+### 0.1.0
 
 - Initial release
 - UjeebuExtractTool for LangChain agents

@@ -2,7 +2,7 @@
  * Example: Using Ujeebu document loader with vector stores
  *
  * Install:
- *   npm install @ujeebu-org/langchain @langchain/core @langchain/openai @langchain/community langchain dotenv ts-node
+ *   npm install @ujeebu-org/langchain @langchain/core @langchain/openai @langchain/community dotenv ts-node
  *   npm install faiss-node (for Example 3 only)
  *
  * Prerequisites:
@@ -59,30 +59,42 @@ async function main() {
 
   try {
     const { FaissStore } = await import('@langchain/community/vectorstores/faiss');
-    const { OpenAIEmbeddings } = await import('@langchain/openai');
-    const { RetrievalQAChain } = await import('langchain/chains');
-    const { ChatOpenAI } = await import('@langchain/openai');
+    const { OpenAIEmbeddings, ChatOpenAI } = await import('@langchain/openai');
+    const { ChatPromptTemplate } = await import('@langchain/core/prompts');
+    const { StringOutputParser } = await import('@langchain/core/output_parsers');
 
     // Reuse documents from Example 2
     const embeddings = new OpenAIEmbeddings();
     const vectorStore = await FaissStore.fromDocuments(documents2, embeddings);
+    const retriever = vectorStore.asRetriever();
 
     const llm = new ChatOpenAI({
       temperature: 0,
       modelName: 'gpt-4',
     });
 
-    const qaChain = RetrievalQAChain.fromLLM(llm, vectorStore.asRetriever(), {
-      returnSourceDocuments: true,
-    });
-
     const query = 'What are the main topics discussed in these articles?';
-    const result = await qaChain.invoke({ query });
+
+    // Retrieve relevant documents
+    const relevantDocs = await retriever.invoke(query);
+
+    // Build prompt with context
+    const context = relevantDocs.map((doc) => doc.pageContent).join('\n\n');
+    const prompt = ChatPromptTemplate.fromMessages([
+      [
+        'system',
+        'Answer the question based on the following context:\n\n{context}',
+      ],
+      ['human', '{question}'],
+    ]);
+
+    const chain = prompt.pipe(llm).pipe(new StringOutputParser());
+    const answer = await chain.invoke({ context, question: query });
 
     console.log(`Query: ${query}`);
-    console.log(`Answer: ${result.text}`);
+    console.log(`Answer: ${answer}`);
     console.log('\nSources:');
-    result.sourceDocuments.forEach((doc: { metadata: { title: string; source: string } }) => {
+    relevantDocs.forEach((doc) => {
       console.log(`- ${doc.metadata.title} (${doc.metadata.source})`);
     });
   } catch {
