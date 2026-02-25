@@ -1,6 +1,6 @@
 {
   "name": "@ujeebu-org/langchain",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "LangChain integration for Ujeebu Extract API",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -71,7 +71,7 @@
     "typescript": "^5.0.0"
   },
   "peerDependencies": {
-    "@langchain/core": ">=0.3.0 <0.4.0",
-    "langchain": ">=0.3.0 <0.4.0"
+    "@langchain/core": ">=0.3.0 <2.0.0",
+    "langchain": ">=0.3.0 <2.0.0"
   }
 }

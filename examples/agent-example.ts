@@ -1,9 +1,11 @@
 /**
  * Example: Using Ujeebu Extract with LangChain agents
  *
+ * Install:
+ *   npm install @ujeebu-org/langchain @langchain/core @langchain/openai langchain dotenv ts-node
+ *
  * Prerequisites:
  *   - Set UJEEBU_API_KEY and OPENAI_API_KEY in .env
- *   - npm install (from project root)
  *
  * Run:
  *   npx ts-node -r dotenv/config examples/agent-example.ts

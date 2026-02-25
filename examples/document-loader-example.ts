@@ -1,10 +1,12 @@
 /**
  * Example: Using Ujeebu document loader with vector stores
  *
+ * Install:
+ *   npm install @ujeebu-org/langchain @langchain/core @langchain/openai @langchain/community langchain dotenv ts-node
+ *   npm install faiss-node (for Example 3 only)
+ *
  * Prerequisites:
  *   - Set UJEEBU_API_KEY and OPENAI_API_KEY in .env
- *   - npm install (from project root)
- *   - npm install faiss-node (for Example 3 only)
  *
  * Run:
  *   npx ts-node -r dotenv/config examples/document-loader-example.ts
