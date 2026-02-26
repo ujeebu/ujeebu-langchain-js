@@ -5,7 +5,7 @@
 import { Tool } from '@langchain/core/tools';
 import { CallbackManagerForToolRun } from '@langchain/core/callbacks/manager';
 import axios, { AxiosError } from 'axios';
-import { ArticleData } from '../types';
+import { ArticleData } from '../types.js';
 
 /**
  * Input parameters for the Ujeebu Extract tool

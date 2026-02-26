@@ -5,7 +5,7 @@
 import { Document } from '@langchain/core/documents';
 import { BaseDocumentLoader } from '@langchain/core/document_loaders/base';
 import axios from 'axios';
-import { ArticleData } from '../types';
+import { ArticleData } from '../types.js';
 
 /**
  * Configuration parameters for UjeebuLoader

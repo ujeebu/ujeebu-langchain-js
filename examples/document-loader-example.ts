@@ -70,7 +70,7 @@ async function main() {
 
     const llm = new ChatOpenAI({
       temperature: 0,
-      modelName: 'gpt-4',
+      model: 'gpt-4',
     });
 
     const query = 'What are the main topics discussed in these articles?';

@@ -60,27 +60,34 @@ process.env.UJEEBU_API_KEY = "your-api-key";
 
 ### Using as an Agent Tool
 
+```bash
+npm install @ujeebu-org/langchain @langchain/core @langchain/openai @langchain/langgraph langchain
+```
+
 ```typescript
 import { UjeebuExtractTool } from '@ujeebu-org/langchain';
-import { createReactAgent } from '@langchain/langgraph/prebuilt';
+import { createAgent } from 'langchain';
 import { ChatOpenAI } from '@langchain/openai';
-import { HumanMessage } from '@langchain/core/messages';
 
 // Initialize the tool
 const ujeebuTool = new UjeebuExtractTool();
 
 // Create an agent
-const llm = new ChatOpenAI({ temperature: 0 });
-const agent = createReactAgent({ llm, tools: [ujeebuTool] });
+const model = new ChatOpenAI({ temperature: 0 });
+const agent = createAgent({ model, tools: [ujeebuTool] });
 
 // Use the agent
 const response = await agent.invoke({
-  messages: [new HumanMessage('Extract the article from https://example.com/article and summarize it')],
+  messages: [{ role: 'user', content: 'Extract the article from https://example.com/article and summarize it' }],
 });
 console.log(response.messages[response.messages.length - 1].content);
 ```
 
 ### Using the Document Loader
+
+```bash
+npm install @ujeebu-org/langchain @langchain/core @langchain/openai @langchain/community
+```
 
 ```typescript
 import { UjeebuLoader } from '@ujeebu-org/langchain';
