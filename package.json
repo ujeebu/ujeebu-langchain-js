@@ -1,6 +1,6 @@
 {
   "name": "@ujeebu-org/langchain",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "LangChain integration for Ujeebu Extract API",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
